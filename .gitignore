@@ -1,0 +1,15 @@
+# AL packages (downloaded dependencies)
+.alpackages/
+
+# Compiled app file
+*.app
+
+# VS Code local settings
+.vscode/settings.json
+.vscode/launch.json
+
+# Snapshots
+.snapshots/
+
+# User-specific files
+*.user
