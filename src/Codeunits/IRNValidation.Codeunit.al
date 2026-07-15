@@ -181,6 +181,10 @@ codeunit 50500 "IRN Validation"
         if ResolveField(SalesInvHeader."Sell-to City", SalesInvHeader."Bill-to City", Customer.City) = '' then
             Error('Invoice %1: Customer city is required for NRS submission. Update the city on the Customer Card for %2 (%3).',
                 DocNo, SalesInvHeader."Sell-to Customer Name", SalesInvHeader."Sell-to Customer No.");
+
+        if ResolveField(SalesInvHeader."Sell-to Post Code", SalesInvHeader."Bill-to Post Code", Customer."Post Code") = '' then
+            Error('Invoice %1: Customer post code is required for NRS submission. Update the Post Code on the Customer Card for %2 (%3).',
+                DocNo, SalesInvHeader."Sell-to Customer Name", SalesInvHeader."Sell-to Customer No.");
     end;
 
     local procedure ValidateCustomerDataForCrMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; Customer: Record Customer)
@@ -207,6 +211,10 @@ codeunit 50500 "IRN Validation"
 
         if ResolveField(SalesCrMemoHeader."Sell-to City", SalesCrMemoHeader."Bill-to City", Customer.City) = '' then
             Error('Credit Memo %1: Customer city is required for NRS submission. Update the city on the Customer Card for %2 (%3).',
+                DocNo, SalesCrMemoHeader."Sell-to Customer Name", SalesCrMemoHeader."Sell-to Customer No.");
+
+        if ResolveField(SalesCrMemoHeader."Sell-to Post Code", SalesCrMemoHeader."Bill-to Post Code", Customer."Post Code") = '' then
+            Error('Credit Memo %1: Customer post code is required for NRS submission. Update the Post Code on the Customer Card for %2 (%3).',
                 DocNo, SalesCrMemoHeader."Sell-to Customer Name", SalesCrMemoHeader."Sell-to Customer No.");
     end;
 

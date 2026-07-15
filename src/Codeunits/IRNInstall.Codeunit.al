@@ -39,7 +39,7 @@ codeunit 50505 "IRN Install"
         SeedCurrentCompany();
     end;
 
-    local procedure SeedCurrentCompany()
+    procedure SeedCurrentCompany()
     var
         CurrentCompany: Text;
         UpperCompany: Text;
@@ -95,7 +95,19 @@ codeunit 50505 "IRN Install"
             exit;
         end;
 
-        // 4. PA ASSETS / PAL SAFEHOUSE
+        // 4a. PAL SAFEHOUSE TEST SANDBOX — must be checked before the production block
+        if UpperCompany.Contains('PAL SAFEHOUSE') and UpperCompany.Contains('TEST') then begin
+            InsertCompany(CurrentCompany, 'PAL SAFEHOUSE NIGERIA LIMITED', '22446543-0001',
+                '',
+                '',
+                '9083542f-a09b-424f-827e-d50b84d4e274', 'CD99A09B',
+                'passfinance@primeatlanticsafetyservices.com', '01-4606130',
+                '33 Adeola Hopewell Street', 'Lagos', '101241', 'NG',
+                'Hot works Protection', 'Tosin');
+            exit;
+        end;
+
+        // 4b. PA ASSETS / PAL SAFEHOUSE (production)
         if UpperCompany.Contains('PA ASSETS') or UpperCompany.Contains('PAL SAFEHOUSE') or UpperCompany.Contains('SAFEHOUSE') then begin
             InsertCompany(CurrentCompany, 'PAL SAFEHOUSE NIGERIA LIMITED', '22446543-0001',
                 '',
@@ -170,9 +182,13 @@ codeunit 50505 "IRN Install"
         CompSetup: Record "IRN Company Setup";
     begin
         if CompSetup.Get(CompName) then begin
-            // Update live key if it was empty
-            if (CompSetup."Live API Key" = '') and (LiveKey <> '') then begin
-                CompSetup."Live API Key" := LiveKey;
+            // Patch missing keys if they were seeded as blank
+            if ((CompSetup."Preprod API Key" = '') and (PreprodKey <> '')) or
+               ((CompSetup."Live API Key" = '') and (LiveKey <> '')) then begin
+                if CompSetup."Preprod API Key" = '' then
+                    CompSetup."Preprod API Key" := PreprodKey;
+                if CompSetup."Live API Key" = '' then
+                    CompSetup."Live API Key" := LiveKey;
                 CompSetup.Modify();
             end;
             exit;
