@@ -47,10 +47,6 @@ codeunit 50505 "IRN Install"
         CurrentCompany := CompanyName;
         UpperCompany := UpperCase(CurrentCompany);
 
-        // Match the current BC company to the correct entity by keyword.
-        // This works for both sandbox ("PRIME ATLANTIC LIMITED - TEST")
-        // and production ("PRIME ATLANTIC LIMITED") names.
-
         // 1. PRIME ATLANTIC LIMITED - must check before others that contain "PRIME ATLANTIC"
         //    Exclude SAFETY, O&G, DOMAIN, GROUP, INVESTMENT, GLOBAL, INSTRUMENTS
         if UpperCompany.Contains('PRIME ATLANTIC') and

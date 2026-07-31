@@ -2,7 +2,7 @@
   "id": "4c49da0f-37d0-453d-be24-e976484edc62",
   "name": "Cryptware NRS E-Invoicing",
   "publisher": "Cryptware Systems",
-  "version": "1.0.0.1",
+  "version": "1.0.0.2",
   "brief": "NRS E-Invoicing integration for FIRS Nigeria",
   "description": "Submits posted corrective sales invoices and credit memos to Nigeria Revenue Service via Cryptware API. Stores IRN and QR code on documents for printing.",
   "privacyStatement": "",
