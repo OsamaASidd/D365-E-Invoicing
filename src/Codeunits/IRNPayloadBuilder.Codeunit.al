@@ -24,7 +24,7 @@ codeunit 50501 "IRN Payload Builder"
         JsonObj.Add('invoice_type_code', '381'); // Commercial Invoice
         JsonObj.Add('document_currency_code', MapCurrencyCode(SalesInvHeader."Currency Code"));
         JsonObj.Add('transaction_category', 'B2B');
-        JsonObj.Add('payment_status', 'PAID');
+        JsonObj.Add('payment_status', MapPaymentStatus(SalesInvHeader."IRN Payment Status"));
         JsonObj.Add('business_id', CompanySetup."Business ID");
         JsonObj.Add('irn', CompanySetup."IRN Code");
 
@@ -111,6 +111,26 @@ codeunit 50501 "IRN Payload Builder"
         JsonObj.Add('legal_monetary_total', BuildMonetaryTotal(LineExtAmount, TaxExclAmount, TaxInclAmount));
 
         exit(JsonObjectToText(JsonObj));
+    end;
+
+    procedure BuildPaymentStatusPayload(PaymentStatus: Enum "IRN Payment Status"): Text
+    var
+        JsonObj: JsonObject;
+    begin
+        JsonObj.Add('payment_status', MapPaymentStatus(PaymentStatus));
+        exit(JsonObjectToText(JsonObj));
+    end;
+
+    local procedure MapPaymentStatus(PaymentStatus: Enum "IRN Payment Status"): Text
+    begin
+        case PaymentStatus of
+            PaymentStatus::Paid:
+                exit('PAID');
+            PaymentStatus::Rejected:
+                exit('REJECTED');
+            else
+                exit('PENDING');
+        end;
     end;
 
     local procedure BuildDocumentIdentifier(DocumentNo: Code[20]; PostingDate: Date): Text

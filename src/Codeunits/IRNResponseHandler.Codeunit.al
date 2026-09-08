@@ -139,6 +139,35 @@ codeunit 50503 "IRN Response Handler"
         );
     end;
 
+    procedure HandlePaymentStatusResponse(var SalesInvHeader: Record "Sales Invoice Header"; RequestPayload: Text; ResponseBody: Text; HttpStatus: Integer; HttpSuccess: Boolean)
+    var
+        ErrorMsg: Text;
+    begin
+        if HttpSuccess then
+            SalesInvHeader."IRN Last Error" := ''
+        else begin
+            ErrorMsg := ParseErrorResponse(ResponseBody, HttpStatus);
+            SalesInvHeader."IRN Last Error" := CopyStr(ErrorMsg, 1, 500);
+        end;
+
+        SalesInvHeader.Modify(true);
+
+        WriteLog(
+            "IRN Document Type"::SalesInvoice,
+            SalesInvHeader."No.",
+            SalesInvHeader.SystemId,
+            SalesInvHeader."Posting Date",
+            SalesInvHeader."Sell-to Customer No.",
+            SalesInvHeader."Sell-to Customer Name",
+            SalesInvHeader."IRN Status",
+            SalesInvHeader."IRN No.",
+            SalesInvHeader."IRN QR Code URL",
+            SalesInvHeader."IRN Cryptware Id",
+            HttpStatus, ErrorMsg,
+            RequestPayload, ResponseBody
+        );
+    end;
+
     local procedure ParseSuccessResponse(ResponseBody: Text; var IRN: Text[250]; var QRCodeURL: Text[500]; var CryptwareId: Text[100])
     var
         JsonObj: JsonObject;

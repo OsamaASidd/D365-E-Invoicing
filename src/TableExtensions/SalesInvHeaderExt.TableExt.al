@@ -52,5 +52,10 @@ tableextension 50500 "Sales Invoice Header Ext" extends "Sales Invoice Header"
             Caption = 'IRN QR Media';
             DataClassification = CustomerContent;
         }
+        field(50510; "IRN Payment Status"; Enum "IRN Payment Status")
+        {
+            Caption = 'Payment Status';
+            DataClassification = CustomerContent;
+        }
     }
 }

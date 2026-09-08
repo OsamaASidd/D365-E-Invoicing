@@ -55,6 +55,13 @@ pageextension 50500 "Posted Sales Inv. Ext" extends "Posted Sales Invoice"
                     Editable = false;
                     Style = Attention;
                 }
+                field("IRN Payment Status"; Rec."IRN Payment Status")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Payment Status';
+                    ToolTip = 'Payment status reported to NRS. Use the Update Payment Status action to change it.';
+                    Editable = false;
+                }
             }
         }
     }
@@ -122,6 +129,53 @@ pageextension 50500 "Posted Sales Inv. Ext" extends "Posted Sales Invoice"
                     IRNMgmt.CancelPostedSalesInvoice(Rec);
                     CurrPage.Update(false);
                 end;
+            }
+            group(UpdatePaymentStatusGroup)
+            {
+                Caption = 'Update Payment Status';
+                Image = Change;
+                Enabled = Rec."IRN Status" = Rec."IRN Status"::Success;
+
+                action(MarkPaid)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Mark as Paid';
+                    ToolTip = 'Report this invoice as Paid to NRS.';
+                    Image = Approve;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+
+                    trigger OnAction()
+                    var
+                        IRNMgmt: Codeunit "IRN Management";
+                    begin
+                        if not Confirm('Update payment status on NRS to Paid for invoice %1?', false, Rec."No.") then
+                            exit;
+                        IRNMgmt.UpdatePaymentStatus(Rec, Rec."IRN Payment Status"::Paid);
+                        CurrPage.Update(false);
+                    end;
+                }
+                action(MarkRejected)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Mark as Rejected';
+                    ToolTip = 'Report this invoice as Rejected to NRS.';
+                    Image = Cancel;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+
+                    trigger OnAction()
+                    var
+                        IRNMgmt: Codeunit "IRN Management";
+                    begin
+                        if not Confirm('Update payment status on NRS to Rejected for invoice %1?', false, Rec."No.") then
+                            exit;
+                        IRNMgmt.UpdatePaymentStatus(Rec, Rec."IRN Payment Status"::Rejected);
+                        CurrPage.Update(false);
+                    end;
+                }
             }
             action(SeeRequest)
             {

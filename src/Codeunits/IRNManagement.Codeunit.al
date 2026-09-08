@@ -80,6 +80,41 @@ codeunit 50504 "IRN Management"
         ResponseHandler.HandleCancelResponse(SalesInvHeader, ResponseBody, HttpStatus, HttpSuccess);
     end;
 
+    procedure UpdatePaymentStatus(var SalesInvHeader: Record "Sales Invoice Header"; NewStatus: Enum "IRN Payment Status")
+    var
+        Validation: Codeunit "IRN Validation";
+        PayloadBuilder: Codeunit "IRN Payload Builder";
+        ApiClient: Codeunit "IRN API Client";
+        ResponseHandler: Codeunit "IRN Response Handler";
+        Payload: Text;
+        ResponseBody: Text;
+        HttpStatus: Integer;
+        HttpSuccess: Boolean;
+    begin
+        Validation.ValidateSetup();
+
+        if SalesInvHeader."IRN Status" <> SalesInvHeader."IRN Status"::Success then
+            Error('Invoice %1 must be successfully submitted to NRS before its payment status can be updated.', SalesInvHeader."No.");
+
+        if SalesInvHeader."IRN No." = '' then
+            Error('Invoice %1 does not have an IRN.', SalesInvHeader."No.");
+
+        Payload := PayloadBuilder.BuildPaymentStatusPayload(NewStatus);
+
+        ApiClient.UpdatePaymentStatus(SalesInvHeader."IRN No.", Payload, HttpStatus, ResponseBody, HttpSuccess);
+
+        // Only reflect the new status on the document once NRS confirms the change
+        if HttpSuccess then
+            SalesInvHeader."IRN Payment Status" := NewStatus;
+
+        ResponseHandler.HandlePaymentStatusResponse(SalesInvHeader, Payload, ResponseBody, HttpStatus, HttpSuccess);
+
+        if HttpSuccess then
+            Message('Payment status for invoice %1 updated to %2 on NRS.', SalesInvHeader."No.", Format(NewStatus))
+        else
+            Message('Payment status update failed for invoice %1.\Error: %2', SalesInvHeader."No.", SalesInvHeader."IRN Last Error");
+    end;
+
     local procedure ParseErrorMessage(ResponseBody: Text): Text
     var
         JsonObj: JsonObject;

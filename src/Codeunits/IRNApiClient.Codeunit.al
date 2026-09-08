@@ -130,6 +130,51 @@ codeunit 50502 "IRN API Client"
         end;
     end;
 
+    procedure UpdatePaymentStatus(IRN: Text; Payload: Text; var HttpStatusCode: Integer; var ResponseBody: Text; var Success: Boolean)
+    var
+        IRNSetup: Record "IRN Setup";
+        Client: HttpClient;
+        Request: HttpRequestMessage;
+        Response: HttpResponseMessage;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        ContentHeaders: HttpHeaders;
+        BaseURL: Text;
+        FullURL: Text;
+        APIKey: Text;
+    begin
+        IRNSetup.GetSetup();
+        BaseURL := IRNSetup.GetActiveBaseURL();
+        FullURL := BaseURL.TrimEnd('/') + '/invoice/' + IRN;
+
+        APIKey := GetCompanyAPIKey(IRNSetup);
+
+        Request.SetRequestUri(FullURL);
+        Request.Method := 'PATCH';
+
+        Content.WriteFrom(Payload);
+        Content.GetHeaders(ContentHeaders);
+        if ContentHeaders.Contains('Content-Type') then
+            ContentHeaders.Remove('Content-Type');
+        ContentHeaders.Add('Content-Type', 'application/json');
+        Request.Content := Content;
+
+        Request.GetHeaders(Headers);
+        Headers.Add(IRNSetup."API Key Header Name", APIKey);
+
+        Client.Timeout(IRNSetup."Timeout (ms)");
+
+        Success := Client.Send(Request, Response);
+        if Success then begin
+            HttpStatusCode := Response.HttpStatusCode;
+            Response.Content.ReadAs(ResponseBody);
+            Success := Response.IsSuccessStatusCode;
+        end else begin
+            HttpStatusCode := 0;
+            ResponseBody := 'HTTP request failed. Check network connectivity and endpoint URL.';
+        end;
+    end;
+
     local procedure GetCompanyAPIKey(IRNSetup: Record "IRN Setup"): Text
     var
         CompanySetup: Record "IRN Company Setup";
